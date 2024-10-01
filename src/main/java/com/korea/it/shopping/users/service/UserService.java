@@ -43,20 +43,23 @@ public class UserService implements UserDetailsService {
         return userRepository.save(user);
     }
 
-    // 로그인 인증 로직
-    public UserEntity authenticateUser(String email, String password) {
+//    // 로그인 인증 로직 이전 버전
+//    public UserEntity authenticateUser(String email, String password) {
+//        UserEntity userEntity = userRepository.findByEmail(email.toLowerCase())
+//                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+//
+//        if (!passwordEncoder.matches(password, userEntity.getPassword())) {
+//            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+//        }
+//
+//        // 인증 정보 생성 및 SecurityContext에 설정
+//        UsernamePasswordAuthenticationToken authenticationToken =
+//                new UsernamePasswordAuthenticationToken(userEntity.getEmail(), password);
+//        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+//
+//        return userEntity;  // 로그인 성공 시 UserEntity 반환
+//    }
 
-        // 이메일을 소문자로 변환하여 검색
-        UserEntity userEntity = userRepository.findByEmail(email.toLowerCase())
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
-
-        // 비밀번호 검증
-        if (!passwordEncoder.matches(password, userEntity.getPassword())) {
-            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
-        }
-
-        return userEntity;  // 로그인 성공 시 UserEntity 반환
-    }
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {

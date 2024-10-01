@@ -1,8 +1,12 @@
 package com.korea.it.shopping.users.controller;
 
+import com.korea.it.shopping.users.entity.CustomUserDetails;
 import com.korea.it.shopping.users.entity.UserEntity;
 import com.korea.it.shopping.users.service.UserService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
@@ -16,26 +20,33 @@ import java.util.Map;
 public class AuthController {
 
     private final UserService userService;
+    private final AuthenticationManager authenticationManager;
 
-    public AuthController(UserService userService) {
+    // 생성자를 통해 AuthenticationManager 주입
+    public AuthController(UserService userService, AuthenticationManager authenticationManager) {
         this.userService = userService;
+        this.authenticationManager = authenticationManager;  // 주입된 AuthenticationManager 사용
     }
 
     // 회원가입 요청 처리
     @PostMapping("/join")
     public ResponseEntity<String> registerUser(@RequestBody UserEntity userEntity) {
-        // 회원가입 로직 실행
-        userService.registerUser(
-                userEntity.getUsername(),
-                userEntity.getEmail(),
-                userEntity.getPassword(),
-                userEntity.getPhone(),   // phone 값 추가
-                userEntity.getAddress(),
-                "ROLE_USER"
-        );
-        return ResponseEntity.ok("회원가입 성공");
+        try {
+            // 회원가입 로직 수행
+            userService.registerUser(
+                    userEntity.getUsername(),
+                    userEntity.getEmail(),
+                    userEntity.getPassword(),
+                    userEntity.getPhone(),
+                    userEntity.getAddress(),
+                    "ROLE_USER"
+            );
+            return ResponseEntity.ok("회원가입 성공");
+        } catch (Exception e) {
+            // 예외 발생 시 에러 메시지 반환
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("회원가입 실패: " + e.getMessage());
+        }
     }
-
     // 로그인 요청 처리
     @PostMapping("/login")
     public ResponseEntity<String> loginUser(@RequestBody Map<String, String> loginRequest) {
@@ -43,32 +54,34 @@ public class AuthController {
         String password = loginRequest.get("password");
 
         try {
-            UserEntity user = userService.authenticateUser(email, password);
+            // AuthenticationManager를 사용하여 인증 처리
+            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(email, password);
+            Authentication authentication = authenticationManager.authenticate(authToken);
+
+            // 인증 성공 시 SecurityContextHolder에 저장
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
             return ResponseEntity.ok("로그인 성공");
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body("로그인 실패: " + e.getMessage());
+        } catch (Exception e) {
+            // 인증 실패 시 에러 메시지 반환
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 실패: " + e.getMessage());
         }
     }
 
+    // 프로필 조회 요청 처리
     @GetMapping("/profile")
-    public ResponseEntity<Map<String, Object>> getProfile() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
+    public ResponseEntity<Map<String, Object>> getProfile(Authentication authentication) {
         if (authentication != null && authentication.isAuthenticated()) {
-            Object principal = authentication.getPrincipal();
+            CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
 
-            // principal이 UserEntity인 경우 처리
-            if (principal instanceof UserEntity) {
-                System.out.println("sdfsjfdlkk");
-                User user = (User) principal;
-                Map<String, Object> profileData = new HashMap<>();
-                profileData.put("username", user.getUsername());
-            //  profileData.put("roles", userEntity.getRole());  // 역할 정보 가져오기 -> 아직 로직 구현하지 않음
-                return ResponseEntity.ok(profileData);
-            }
+            // 프로필 정보 생성
+            Map<String, Object> profileData = new HashMap<>();
+            profileData.put("username", customUserDetails.getUsername());
+            profileData.put("email", customUserDetails.getEmail());
+
+            return ResponseEntity.ok(profileData);
         }
-
-        return ResponseEntity.status(401).body(null);  // 인증되지 않은 경우 401 반환
+        // 인증되지 않은 경우 401 반환
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
     }
-
 }

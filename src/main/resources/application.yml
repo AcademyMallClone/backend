@@ -3,6 +3,8 @@ server:
   stored:
     file:
       path: /Users/hanhyemin/files/downloads
+    session:
+      timeout: 30m #세션타임 30분
 
 spring:
   main:
