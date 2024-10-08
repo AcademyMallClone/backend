@@ -9,7 +9,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -39,14 +38,17 @@ public class AuthController {
                     userEntity.getPassword(),
                     userEntity.getPhone(),
                     userEntity.getAddress(),
-                    "ROLE_USER"
+                    userEntity.getRole() != null ? userEntity.getRole() : "ROLE_USER"
             );
             return ResponseEntity.ok("회원가입 성공");
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("회원가입 실패: 이미 가입된 이메일입니다.");
         } catch (Exception e) {
-            // 예외 발생 시 에러 메시지 반환
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("회원가입 실패: " + e.getMessage());
         }
     }
+
+
     // 로그인 요청 처리
     @PostMapping("/login")
     public ResponseEntity<String> loginUser(@RequestBody Map<String, String> loginRequest) {
@@ -67,7 +69,6 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 실패: " + e.getMessage());
         }
     }
-
     // 프로필 조회 요청 처리
     @GetMapping("/profile")
     public ResponseEntity<Map<String, Object>> getProfile(Authentication authentication) {

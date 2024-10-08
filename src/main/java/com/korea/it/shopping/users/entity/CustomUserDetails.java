@@ -16,7 +16,6 @@ public class CustomUserDetails implements UserDetails {
         this.authorities = authorities;
     }
 
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return authorities;  // 사용자의 권한 목록

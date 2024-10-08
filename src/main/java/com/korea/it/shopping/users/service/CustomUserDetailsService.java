@@ -13,11 +13,11 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class CustomUserDetailService implements UserDetailsService {
+public class CustomUserDetailsService implements UserDetailsService {
 
     private final UserRepository userRepository;
 
-    public CustomUserDetailService(UserRepository userRepository) {
+    public CustomUserDetailsService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
@@ -27,9 +27,10 @@ public class CustomUserDetailService implements UserDetailsService {
         UserEntity userEntity = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + email));
 
+        // 권한 설정
         List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(userEntity.getRole()));
 
-        // CustomUserDetails 객체를 반환
+        // CustomUserDetails 객체를 반환하여 Spring Security와 연동
         return new CustomUserDetails(userEntity, authorities);
     }
 }

@@ -1,6 +1,6 @@
 package com.korea.it.shopping.config;
 
-import com.korea.it.shopping.users.service.CustomUserDetailService;
+import com.korea.it.shopping.users.service.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,15 +20,15 @@ import java.util.List;
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    private final CustomUserDetailService customUserDetailService;
+    private final CustomUserDetailsService customUserDetailsService;
 
-    public SecurityConfig(CustomUserDetailService customUserDetailService) {
-        this.customUserDetailService = customUserDetailService;
+    public SecurityConfig(CustomUserDetailsService customUserDetailsService) {
+        this.customUserDetailsService = customUserDetailsService;
     }
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(customUserDetailService).passwordEncoder(passwordEncoder());
+        auth.userDetailsService(customUserDetailsService).passwordEncoder(passwordEncoder());
     }
 
     @Bean
@@ -56,25 +56,29 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
                 .and()
                 .formLogin().disable()
-//                .loginPage("/login").permitAll() //커스텀 로그인 페이지 경로 설정
-//                .loginProcessingUrl("/login") //로그인 요청을 처리할 URL
-//                .usernameParameter("email") //id파라미터를 email로 설정
-//                .passwordParameter("password") //password파라미터 설정
-//                .defaultSuccessUrl("/") //로그인 성공 시 리다이렉트할 경로
-//                .permitAll()
-//                .and()
 
                 // 로그아웃 설정
                 .logout()
-                .logoutUrl("/api/auth/logout") // 로그아웃 요청 처리 경로
+                .logoutUrl("/logout") // 로그아웃 요청 처리 경로
                 .logoutSuccessUrl("/login") // 로그아웃 성공 시 리다이렉트 경로
                 .permitAll() // 로그아웃 요청은 모두 접근 가능
-                .and() // logout 블록 종료
+                .and()
 
                 // 세션 관리 설정
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED) // 세션이 필요할 때만 생성
                 .maximumSessions(1); // 동시에 하나의 세션만 허용
+
+//                .sessionManagement()
+//                .sessionFixation().migrateSession()
+//                .and()
+
+//                .rememberMe()
+//                .key("uniqueAndSecret")
+//                .rememberMeParameter("remember-me")
+//                .tokenValiditySeconds(86400) // remember-me 쿠키 유효 기간 (1일)
+//                .userDetailsService(userDetailsService) // userDetailsService 설정
+
     }
 
     @Bean
@@ -85,7 +89,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         configuration.setAllowCredentials(true);  // 쿠키를 허용
         configuration.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type"));
         configuration.setExposedHeaders(List.of("Authorization", "Content-Type"));
-
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
