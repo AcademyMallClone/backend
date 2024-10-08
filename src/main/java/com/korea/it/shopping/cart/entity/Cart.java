@@ -1,4 +1,4 @@
-package com.korea.it.shopping.carts.entity;
+package com.korea.it.shopping.cart.entity;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -29,4 +29,5 @@ public class Cart {
 
     @Column(nullable = false)
     private int price;
+
 }
