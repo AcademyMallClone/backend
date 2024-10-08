@@ -1,6 +1,6 @@
 package com.korea.it.shopping.users.service;
 
-import com.korea.it.shopping.users.entity.UserEntity;
+import com.korea.it.shopping.users.entity.User;
 import com.korea.it.shopping.users.repo.UserRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -20,14 +20,14 @@ public class UserService {
 
     // 회원가입 로직
     @Transactional
-    public UserEntity registerUser(String username, String email, String password, String phone, String address, String role) {
+    public User registerUser(String username, String email, String password, String phone, String address, String role) {
 
         // 이메일 중복 체크 로직
         if (userRepository.existsByEmail(email)) {
             throw new IllegalStateException("이미 가입된 이메일입니다.");
         }
 
-        UserEntity user = new UserEntity();
+        User user = new User();
         user.setUsername(username);
         user.setEmail(email);
         user.setPassword(passwordEncoder.encode(password));  // 비밀번호 암호화

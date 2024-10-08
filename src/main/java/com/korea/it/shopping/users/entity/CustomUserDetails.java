@@ -8,11 +8,11 @@ import java.util.List;
 
 public class CustomUserDetails implements UserDetails {
 
-    private final UserEntity userEntity;
+    private final User user;
     private final List<GrantedAuthority> authorities;
 
-    public CustomUserDetails(UserEntity userEntity, List<GrantedAuthority> authorities) {
-        this.userEntity = userEntity;
+    public CustomUserDetails(User user, List<GrantedAuthority> authorities) {
+        this.user = user;
         this.authorities = authorities;
     }
 
@@ -23,12 +23,12 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public String getPassword() {
-        return userEntity.getPassword();  // 비밀번호 반환
+        return user.getPassword();  // 비밀번호 반환
     }
 
     @Override
     public String getUsername() {
-        return userEntity.getUsername();  // 사용자이름 반환
+        return user.getUsername();  // 사용자이름 반환
     }
 
     @Override
@@ -53,14 +53,14 @@ public class CustomUserDetails implements UserDetails {
 
     // UserEntity에서 커스텀 활용
     public String getEmail() {
-        return userEntity.getEmail();
+        return user.getEmail();
     }
 
     public String getPhone() {
-        return userEntity.getPhone();
+        return user.getPhone();
     }
 
     public String getAddress() {
-        return userEntity.getAddress();
+        return user.getAddress();
     }
 }

@@ -1,7 +1,7 @@
 package com.korea.it.shopping.users.controller;
 
 import com.korea.it.shopping.users.entity.CustomUserDetails;
-import com.korea.it.shopping.users.entity.UserEntity;
+import com.korea.it.shopping.users.entity.User;
 import com.korea.it.shopping.users.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,16 +29,16 @@ public class AuthController {
 
     // 회원가입 요청 처리
     @PostMapping("/join")
-    public ResponseEntity<String> registerUser(@RequestBody UserEntity userEntity) {
+    public ResponseEntity<String> registerUser(@RequestBody User user) {
         try {
             // 회원가입 로직 수행
             userService.registerUser(
-                    userEntity.getUsername(),
-                    userEntity.getEmail(),
-                    userEntity.getPassword(),
-                    userEntity.getPhone(),
-                    userEntity.getAddress(),
-                    userEntity.getRole() != null ? userEntity.getRole() : "ROLE_USER"
+                    user.getUsername(),
+                    user.getEmail(),
+                    user.getPassword(),
+                    user.getPhone(),
+                    user.getAddress(),
+                    user.getRole() != null ? user.getRole() : "ROLE_USER"
             );
             return ResponseEntity.ok("회원가입 성공");
         } catch (IllegalStateException e) {
