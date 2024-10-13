@@ -11,6 +11,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -63,12 +65,19 @@ public class AuthController {
             // 인증 성공 시 SecurityContextHolder에 저장
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
+            // 세션 정보 로그 출력
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null && auth.isAuthenticated()) {
+                System.out.println("Current Authenticated User: " + auth.getName());
+            }
+
             return ResponseEntity.ok("로그인 성공");
         } catch (Exception e) {
             // 인증 실패 시 에러 메시지 반환
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 실패: " + e.getMessage());
         }
     }
+
     // 프로필 조회 요청 처리
     @GetMapping("/profile")
     public ResponseEntity<Map<String, Object>> getProfile(Authentication authentication) {
@@ -84,5 +93,12 @@ public class AuthController {
         }
         // 인증되지 않은 경우 401 반환
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<String> logoutUser(HttpServletRequest request, HttpServletResponse response) {
+        SecurityContextHolder.clearContext(); // SecurityContextHolder 비우기
+        request.getSession().invalidate(); // 세션 무효화
+        return ResponseEntity.ok("로그아웃 성공");
     }
 }

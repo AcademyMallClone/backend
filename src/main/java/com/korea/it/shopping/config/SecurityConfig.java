@@ -48,10 +48,22 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .cors() // CORS 설정 허용
                 .and()
                 .csrf().disable()
-
                 // URL별 권한 설정
                 .authorizeRequests()
-                .antMatchers("/api/auth/join", "/api/auth/login","/api/auth/profile").permitAll() // 회원가입, 로그인은 모두 접근 가능
+
+                // 정적 리소스는 인증 없이 접근 가능
+                .antMatchers("/images/**", "/css/**", "/js/**").permitAll()
+
+                .antMatchers("/login/","/api/auth/join", "/api/auth/login",
+                        "/api/auth/profile","/api/products/**","/api/notices","/socket.io"
+                        ,"api/notices/**","/notices/**").permitAll() // 회원가입, 로그인은 모두 접근 가능
+
+                // 상품 등록 및 장바구니는 로그인한 사용자만 접근 가능
+                .antMatchers("/cart").authenticated()  // 장바구니에 접근하려면 인증 필요
+                .antMatchers("/api/products/upload").authenticated()  // 상품 등록에 접근하려면 인증 필요
+                .antMatchers("/upload").authenticated()  // 상품 등록에 접근하려면 인증 필요
+
+
                 .anyRequest().authenticated() // 그 외 모든 요청은 인증 필요
 
                 .and()
@@ -60,39 +72,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 // 로그아웃 설정
                 .logout()
                 .logoutUrl("/logout") // 로그아웃 요청 처리 경로
-                .logoutSuccessUrl("/login") // 로그아웃 성공 시 리다이렉트 경로
+                .logoutSuccessUrl("/") // 로그아웃 성공 시 리다이렉트 경로
                 .permitAll() // 로그아웃 요청은 모두 접근 가능
                 .and()
 
-                // 세션 관리 설정
                 .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED) // 세션이 필요할 때만 생성
-                .maximumSessions(1); // 동시에 하나의 세션만 허용
-
-//                .sessionManagement()
-//                .sessionFixation().migrateSession()
-//                .and()
-
-//                .rememberMe()
-//                .key("uniqueAndSecret")
-//                .rememberMeParameter("remember-me")
-//                .tokenValiditySeconds(86400) // remember-me 쿠키 유효 기간 (1일)
-//                .userDetailsService(userDetailsService) // userDetailsService 설정
-
+                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)  // 항상 세션을 생성하여 유지
+                .maximumSessions(1);  // 동시에 하나의 세션만 허용
     }
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000")); // 프론트엔드 포트 설정
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowCredentials(true);  // 쿠키를 허용
-        configuration.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type"));
-        configuration.setExposedHeaders(List.of("Authorization", "Content-Type"));
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-
-        return source;
-    }
 }

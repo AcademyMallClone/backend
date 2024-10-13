@@ -32,11 +32,7 @@ public class Product {
     @Column(name = "image_url")
     private String imageUrl;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "category_id")
-//    private CategoryEntity category;
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cart_id")
+    @JoinColumn(name = "cart_id")  // 올바른 관계 정의
     private Cart cart;
 }
