@@ -29,7 +29,7 @@ public class ProductController {
 
     // 특정 상품 조회 (상품 ID로)
     @GetMapping("/{productId}")
-    public ResponseEntity<Product> getProductById(@PathVariable Long productId) {
+    public ResponseEntity<Product> getProductById(@PathVariable Integer productId) {
         Product product = productService.getProductById(productId);
         if (product != null) {
             return ResponseEntity.ok(product);

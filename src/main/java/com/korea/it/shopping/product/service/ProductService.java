@@ -29,8 +29,8 @@ public class ProductService {
     }
 
     // 특정 상품 조회
-    public Product getProductById(Long productId) {
-        return productRepository.findById(productId).orElse(null);
+    public Product getProductById(Integer productId) {
+        return productRepository.findByProductId(productId).orElse(null);
     }
 
     // 상품 등록 (이미지 포함)
